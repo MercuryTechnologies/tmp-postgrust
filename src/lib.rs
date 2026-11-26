@@ -27,7 +27,7 @@ use std::sync::atomic::AtomicU32;
 use std::sync::{Arc, OnceLock, RwLock};
 use std::{fs::File, io::Write};
 
-use ctor::dtor;
+use dtor::dtor;
 use nix::unistd::{Gid, Uid};
 use tempfile::{Builder, TempDir};
 use tracing::{debug, info, instrument};
@@ -43,7 +43,7 @@ pub(crate) static POSTGRES_UID_GID: OnceLock<(Uid, Gid)> = OnceLock::new();
 /// As the static variables declared by this crate contain values that
 /// need to be dropped at program exit to clean up resources, we use a
 /// `#[dtor]` hack to drop the variables if they have been initialized.
-#[dtor]
+#[dtor(unsafe)]
 fn cleanup_static() {
     #[cfg(feature = "tokio-process")]
     if let Some(factory_mutex) = TOKIO_POSTGRES_FACTORY.get() {
